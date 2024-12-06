@@ -1,14 +1,24 @@
-import React, { FC } from "react"
+import React, { FC, useMemo } from "react"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
 import { MessageCodeBlock } from "./message-codeblock"
 import { MessageMarkdownMemoized } from "./message-markdown-memoized"
+import { MessageMermaid } from "./message-mermaid"
 
 interface MessageMarkdownProps {
   content: string
 }
 
 export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
+  const isMermaidComplete = useMemo(() => {
+    const mermaidPattern = /```mermaid\n([\s\S]*?)```/g
+    const matches = content.match(mermaidPattern)
+    if (content.includes("```mermaid") && !matches) {
+      return false
+    }
+    return true
+  }, [content])
+
   return (
     <MessageMarkdownMemoized
       className="prose dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 min-w-full space-y-6 break-words"
@@ -36,6 +46,15 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
           }
 
           const match = /language-(\w+)/.exec(className || "")
+
+          if (match && match[1] === "mermaid") {
+            if (!isMermaidComplete) {
+              return <div>Loading diagram...</div>
+            }
+            return (
+              <MessageMermaid value={String(childArray).replace(/\n$/, "")} />
+            )
+          }
 
           if (
             typeof firstChildAsString === "string" &&

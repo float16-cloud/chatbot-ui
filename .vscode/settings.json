@@ -1,0 +1,12 @@
+{
+  "i18n-ally.localesPaths": [
+    "components/messages",
+    "public/locales"
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+}
