@@ -12,8 +12,14 @@ interface MessageMarkdownProps {
 export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
   const isMermaidComplete = useMemo(() => {
     const mermaidPattern = /```mermaid\n([\s\S]*?)```/g
-    const matches = content.match(mermaidPattern)
-    if (content.includes("```mermaid") && !matches) {
+    const matches = content.matchAll(mermaidPattern)
+    const matchCount = [...matches].length
+
+    // นับจำนวนครั้งที่เจอ ```mermaid
+    const startTags = (content.match(/```mermaid/g) || []).length
+
+    // ถ้าเจอ ```mermaid แต่จำนวน matches ไม่เท่ากับจำนวน start tags แสดงว่ายังไม่สมบูรณ์
+    if (startTags > 0 && matchCount !== startTags) {
       return false
     }
     return true
@@ -48,11 +54,14 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
           const match = /language-(\w+)/.exec(className || "")
 
           if (match && match[1] === "mermaid") {
-            if (!isMermaidComplete) {
-              return <div>Loading diagram...</div>
-            }
+            // if (!isMermaidComplete) {
+            //   return <div>Loading diagram...</div>
+            // }
             return (
-              <MessageMermaid value={String(childArray).replace(/\n$/, "")} />
+              <MessageMermaid
+                value={String(childArray).replace(/\n$/, "")}
+                isComplete={isMermaidComplete}
+              />
             )
           }
 
